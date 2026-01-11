@@ -18,7 +18,8 @@ func NewAuthHandler(as service.AuthService) *AuthHandler {
 
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

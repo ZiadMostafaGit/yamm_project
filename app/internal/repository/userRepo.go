@@ -9,6 +9,9 @@ import (
 type UserRepository interface {
 	Create(user *models.User) error
 	GetByEmail(email string) (*models.User, error)
+	Update(*models.User) error
+	Delete(id uint) error
+	GetAllUsers() ([]models.User, error)
 }
 
 type userRepository struct {

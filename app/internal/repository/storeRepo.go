@@ -9,6 +9,8 @@ import (
 type StoreRepo interface {
 	Create(store *models.Store) error
 	GetByUserid(id uint) (*models.Store, error)
+	Update(store *models.Store) error
+	Delete(id uint) error
 }
 
 type storeRepo struct {

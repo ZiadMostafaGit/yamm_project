@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"yamm-project/app/internal/config"
 	"yamm-project/app/internal/db"
 	"yamm-project/app/internal/handler"
@@ -21,8 +22,10 @@ func main() {
 	userRepo := repository.NewUserRepository(database)
 	storeRepo := repository.NewStoreRepo(database)
 	authService := service.NewAuthService(userRepo, storeRepo, database)
-
 	authHandler := handler.NewAuthHandler(authService)
+	categoryRepo := repository.NewCategoryRepository(database)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
 	r := gin.Default()
 
 	api := r.Group("/api/v1")
@@ -32,6 +35,23 @@ func main() {
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/registerNewAdminForYammApp", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
+		}
+		app := api.Group("/")
+		{
+			//these just for testing the middleware
+			app.GET("/customerPage", handler.AuthMiddleware(), handler.RoleMiddleware("customer", "merchant"), func(ctx *gin.Context) {
+				ctx.JSON(http.StatusAccepted, gin.H{"middleware auth": "jwt middleware is ok and role is accepted"})
+			})
+			app.GET("/adminPage", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), func(ctx *gin.Context) {
+				ctx.JSON(http.StatusAccepted, gin.H{"middleware auth": "jwt middleware is ok and role is accepted"})
+			})
+		}
+		category := api.Group("/category")
+		{
+			category.POST("/Create", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Create)
+			category.PATCH("/Update/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Update)
+			category.DELETE("/Delete/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Delete)
+			category.GET("/GetAll", handler.AuthMiddleware(), handler.RoleMiddleware("castomer", "merchant", "admin"), categoryHandler.GetAll)
 		}
 	}
 

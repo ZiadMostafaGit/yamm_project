@@ -11,7 +11,7 @@ type FAQ struct {
 
 	Category     Category      `json:"-"`
 	Store        *Store        `json:"store,omitempty"`
-	Translations []Translation `json:"translations,omitempty"`
+	Translations []Translation `gorm:"foreignKey:FAQID;constraint:OnDelete:CASCADE" json:"translations,omitempty"`
 }
 
 func (FAQ) TableName() string {
