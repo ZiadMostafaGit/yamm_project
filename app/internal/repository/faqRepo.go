@@ -16,9 +16,12 @@ type FAQRepository interface {
 	Create(faq *models.FAQ) (*uint, error)
 	GetByID(id uint) (*models.FAQ, error)
 	Update(id uint, state bool) error
+	UpdateVisibility(id uint, isGlobal bool) error
 	GetForCustomer(storeID *uint) ([]models.FAQ, error) //since the user get the global and store specific then i nead to query all the faq for global
-	// and the one with the store id so i nead to get both all global and the one with store id in the task asking for groupby but we dont
-	//  do any aggrigate so i think i may just order by category id and thats it
+
+	// and the one with the store id so i nead to get both all global and the one with store id in the task asking for groupby iam not sure if it means
+	// that user can filter by the category or just that the order of them become based on the category
+	// i think i may just order by category id and thats it
 	Delete(id uint) error
 	GetAll() ([]models.FAQ, error)
 }
@@ -73,6 +76,24 @@ func (r *faqRepository) Delete(id uint) error {
 	}
 	if res.RowsAffected == 0 {
 		return errors.New("Faq not found")
+	}
+	return nil
+}
+func (r *faqRepository) UpdateVisibility(id uint, isGlobal bool) error {
+	if isGlobal == true {
+		err := r.db.Model(&models.FAQ{}).Where("id = ?", id).Updates(map[string]interface{}{
+			"is_global": true,
+			"store_id":  nil,
+		}).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	err := r.db.Model(&models.FAQ{}).Where("id = ?", id).Update("is_global", false).Error
+	if err != nil {
+		return err
 	}
 	return nil
 }

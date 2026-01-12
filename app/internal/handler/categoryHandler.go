@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"yamm-project/app/internal/dto"
 	"yamm-project/app/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func NewCategoryHandler(cs service.CategoryService) *CategoryHandler {
 }
 
 func (ch *CategoryHandler) Create(c *gin.Context) {
-	var req CategoryCreateRequest
+	var req dto.CategoryCreateRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -76,7 +77,7 @@ func (ch *CategoryHandler) Update(c *gin.Context) {
 
 	}
 
-	var req CategoryUpdateRequest
+	var req dto.CategoryUpdateRequest
 	newErr := c.ShouldBindJSON(&req)
 	if newErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": newErr.Error()})

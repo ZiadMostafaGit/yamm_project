@@ -7,7 +7,7 @@ type FAQ struct {
 	CategoryID uint      `gorm:"not null" json:"category_id"`
 	StoreID    *uint     `json:"store_id"`
 	IsGlobal   bool      `json:"is_global"`
-	CreatedAt  time.Time `json:"created_at"`
+	CreatedAt  time.Time `gorm:"autoCreateTime" json:"created_at"`
 
 	Category     Category      `json:"-"`
 	Store        *Store        `json:"store,omitempty"`

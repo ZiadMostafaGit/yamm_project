@@ -8,9 +8,8 @@ type Translation struct {
 	LanguageCode string    `gorm:"size:10;default:AR" json:"language_code"`
 	Question     string    `gorm:"not null" json:"question"`
 	Answer       string    `gorm:"not null" json:"answer"`
-	CreatedAt    time.Time `json:"created_at"`
-
-	FAQ FAQ `json:"-"`
+	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+	FAQ          FAQ       `json:"-"`
 }
 
 func (Translation) TableName() string {

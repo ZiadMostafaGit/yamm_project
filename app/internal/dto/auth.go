@@ -1,4 +1,4 @@
-package handler
+package dto
 
 type RegisterRequest struct {
 	Email     string `json:"email" binding:"required,email"`
@@ -12,12 +12,4 @@ type RegisterRequest struct {
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
-}
-
-type CategoryCreateRequest struct {
-	Name string `json:"name" binding:"required"`
-}
-
-type CategoryUpdateRequest struct {
-	Name string `json:"name" binding:"required"`
 }

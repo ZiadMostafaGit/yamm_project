@@ -43,9 +43,12 @@ func (c *categoryRepository) GetById(id uint) (*models.Category, error) {
 
 func (c *categoryRepository) Update(id uint, category string) error {
 
-	err := c.db.Model(&models.Category{}).Where("id = ? ", id).Update("name", category).Error
-	if err != nil {
-		return err
+	res := c.db.Model(&models.Category{}).Where("id = ? ", id).Update("name", category)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("invalid operation")
 	}
 	return nil
 
