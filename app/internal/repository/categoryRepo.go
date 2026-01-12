@@ -54,17 +54,20 @@ func (c *categoryRepository) Update(id uint, category string) error {
 func (c *categoryRepository) GetAll() ([]models.Category, error) {
 	var categories []models.Category
 	err := c.db.Find(&categories).Error
-	return categories, err
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
 }
 
 func (c *categoryRepository) Delete(id uint) error {
-	result := c.db.Delete(&models.Category{}, id)
+	res := c.db.Delete(&models.Category{}, id)
 
-	if result.Error != nil {
-		return result.Error
+	if res.Error != nil {
+		return res.Error
 	}
 
-	if result.RowsAffected == 0 {
+	if res.RowsAffected == 0 {
 		return errors.New("category not found")
 	}
 
