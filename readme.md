@@ -74,39 +74,39 @@ I believe this structure is clean scalable and follows solid backend best practi
 
 ### Authentication
 **Register Admin**  
-![Register Admin](screenshots/registeradmin.jpeg)
+![Register Admin](screenshot/registeradmin.jpeg)
 
 **Register Merchant (Auto-Store)**  
-![Register Merchant](screenshots/registerMerchant.jpeg)
+![Register Merchant](screenshot/registerMerchant.jpeg)
 
 **Login**  
-![Login](screenshots/login.jpeg)
+![Login](screenshot/login.jpeg)
 
 ### Category Management
 **Create Category**  
-![Create Category](screenshots/create_category.jpeg)
+![Create Category](screenshot/create_category.jpeg)
 
 **Get All Categories**  
-![Get All](screenshots/get_all.jpeg)
+![Get All](screenshot/get_all.jpeg)
 
 **Update Category**  
-![Update Category](screenshots/update_category.jpeg)
+![Update Category](screenshot/update_category.jpeg)
 
 **Delete Category**  
-![Delete Category](screenshots/delete_category.jpeg)
+![Delete Category](screenshot/delete_category.jpeg)
 
 ### FAQ Management
 **Create FAQ with Translations**  
-![Create FAQ](screenshots/create_faq.jpeg)
+![Create FAQ](screenshot/create_faq.jpeg)
 
 **Get FAQ (Customer Grouped View)**  
-![Get FAQ](screenshots/get_faq.jpeg)
+![Get FAQ](screenshot/get_faq.jpeg)
 
 **Update FAQ Translation**  
-![Update Translation](screenshots/update_faq_translation.jpeg)
+![Update Translation](screenshot/update_faq_translation.jpeg)
 
 **Update FAQ Visibility**  
-![Update Visibility](screenshots/update_vis.jpeg)
+![Update Visibility](screenshot/update_vis.jpeg)
 
 **Delete FAQ**  
-![Delete FAQ](screenshots/delete_faq.jpeg)
+![Delete FAQ](screenshot/delete_faq.jpeg)
