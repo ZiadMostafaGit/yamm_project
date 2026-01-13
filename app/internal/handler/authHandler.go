@@ -22,7 +22,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -34,18 +34,20 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		Role:      req.Role,
 	}
 
-	if err := h.authService.Register(user, req.StoreName); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	token, err := h.authService.Register(user, req.StoreName)
+	if err != nil {
+
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Registration successful"})
+	SendResponse(c, http.StatusCreated, "Created successfully", gin.H{"token": token})
 }
 
 func (h *AuthHandler) RegisterAdmin(c *gin.Context) {
 	var req dto.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -57,27 +59,28 @@ func (h *AuthHandler) RegisterAdmin(c *gin.Context) {
 		Role:      req.Role,
 	}
 
-	if err := h.authService.RegisterAdmin(user, req.StoreName); err != nil {
-
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	token, err := h.authService.RegisterAdmin(user)
+	if err != nil {
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
+
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Registration successful"})
+	SendResponse(c, http.StatusCreated, "Created successfully", gin.H{"token": token})
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	token, err := h.authService.LogIn(req.Email, req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	SendResponse(c, http.StatusOK, "Login successfully", gin.H{"token": token})
 }

@@ -16,18 +16,16 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is requeired"})
+			SendResponse(c, http.StatusUnauthorized, "Authorization header is required", nil)
 			c.Abort()
 			return
-
 		}
 
 		partes := strings.Split(authHeader, " ")
 		if len(partes) != 2 || partes[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is requeired"})
+			SendResponse(c, http.StatusUnauthorized, "Invalid authorization format", nil)
 			c.Abort()
 			return
-
 		}
 
 		jwtTocken := partes[1]
@@ -39,7 +37,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			SendResponse(c, http.StatusUnauthorized, "Invalid or expired token", nil)
 			c.Abort()
 			return
 		}
@@ -50,5 +48,4 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
-
 }

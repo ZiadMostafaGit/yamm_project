@@ -20,7 +20,7 @@ func NewFAQHandler(fs service.FAQService) *FAQHandler {
 func (h *FAQHandler) Create(c *gin.Context) {
 	var req dto.CreateFAQRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -35,11 +35,11 @@ func (h *FAQHandler) Create(c *gin.Context) {
 
 	id, err := h.faqService.CreateFAQ(&req, role, storeIDPtr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"faq_id": id})
+	SendResponse(c, http.StatusCreated, "FAQ created successfully", gin.H{"faq_id": id})
 }
 
 func (h *FAQHandler) GetCustomerView(c *gin.Context) {
@@ -54,64 +54,37 @@ func (h *FAQHandler) GetCustomerView(c *gin.Context) {
 
 	faqs, err := h.faqService.GetGroupedFAQs(storeIDPtr, lang)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, faqs)
+	SendResponse(c, http.StatusOK, "FAQs fetched successfully", faqs)
 }
+
 func (h *FAQHandler) UpdateVisibility(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		SendResponse(c, http.StatusBadRequest, "invalid id", nil)
 		return
 	}
 
 	var req dto.UpdateFAQRequest
 	newErr := c.ShouldBindJSON(&req)
 	if newErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": newErr.Error()})
+		SendResponse(c, http.StatusBadRequest, newErr.Error(), nil)
 		return
 	}
 
 	role := c.GetString("role")
 	otherErr := h.faqService.UpdateFAQVisibility(uint(id), &req, role)
 	if otherErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": otherErr.Error()})
+		SendResponse(c, http.StatusBadRequest, otherErr.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Visibility updated successfully"})
+	SendResponse(c, http.StatusOK, "Visibility updated successfully", nil)
 }
-
-// func (h *FAQHandler) UpdateVisibility(c *gin.Context) {
-// 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-// 	var req dto.UpdateFAQRequest
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	role := c.GetString("role")
-// 	var sidPtr *uint
-
-// 	sid, exists := c.Get("store_id")
-// 	if exists && req.IsGlobal == true {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Cant change to public while it has store"})
-// 		return
-
-// 	}
-// 	store_id := sid.(uint)
-// 	sidPtr = &store_id
-
-// 	if err := h.faqService.UpdateFAQVisibility(uint(id), &req, role, sidPtr); err != nil {
-// 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"message": "Visibility updated"})
-// }
 
 func (h *FAQHandler) UpdateTranslations(c *gin.Context) {
 	idStr := c.Param("id")
@@ -119,7 +92,7 @@ func (h *FAQHandler) UpdateTranslations(c *gin.Context) {
 
 	var req dto.UpdateTranslationsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -133,11 +106,11 @@ func (h *FAQHandler) UpdateTranslations(c *gin.Context) {
 	}
 
 	if err := h.faqService.UpdateTranslations(uint(id), &req, role, storeIDPtr); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusForbidden, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Translations updated successfully"})
+	SendResponse(c, http.StatusOK, "Translations updated successfully", nil)
 }
 
 func (h *FAQHandler) Delete(c *gin.Context) {
@@ -154,9 +127,9 @@ func (h *FAQHandler) Delete(c *gin.Context) {
 	}
 
 	if err := h.faqService.DeleteFAQ(uint(id), role, storeIDPtr); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusForbidden, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "FAQ deleted successfully"})
+	SendResponse(c, http.StatusOK, "FAQ deleted successfully", nil)
 }

@@ -12,10 +12,10 @@ func RoleMiddleware(allowedRoles ...string) gin.HandlerFunc {
 
 		requestRole, exsist := c.Get("role")
 		if !exsist {
-			c.JSON(http.StatusForbidden, gin.H{"error": "role not found in context"})
 			c.Abort()
 			return
 		}
+
 		isAllowedToContinue := false
 		for _, role := range allowedRoles {
 			if role == requestRole {
@@ -25,13 +25,11 @@ func RoleMiddleware(allowedRoles ...string) gin.HandlerFunc {
 		}
 
 		if !isAllowedToContinue {
-			c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to perform this action"})
+			SendResponse(c, http.StatusForbidden, "You do not have permission to perform this action", nil)
 			c.Abort()
 			return
 		}
 
 		c.Next()
-
 	}
-
 }

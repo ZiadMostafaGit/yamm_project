@@ -64,49 +64,15 @@ Config Dotenv for database URL and JWT secret
 ## How to run the project
 1 Set the env file with DATABASE_URL and JWT_SECRET
 2 Run migrations using goose up
-3 Run the app using go run app cmd api main go
+3 Run the app using go run app cmd api main go 
 4 Use the Postman collection to test register login and all CRUD operations for categories and FAQs
 
 I added many comments in the code especially around the FAQ logic to explain why certain decisions were made 
 I believe this structure is clean scalable and follows solid backend best practices
 
-## Screenshots (Postman Testing)
+## VIDEO (Postman Testing)
+[Click here to watch the demo video](postman_test.mp4)
+## Demo
 
-### Authentication
-**Register Admin**  
-![Register Admin](screenshot/registeradmin.jpeg)
+![API Demo](demo.gif)
 
-**Register Merchant (Auto-Store)**  
-![Register Merchant](screenshot/registerMerchant.jpeg)
-
-**Login**  
-![Login](screenshot/login.jpeg)
-
-### Category Management
-**Create Category**  
-![Create Category](screenshot/create_category.jpeg)
-
-**Get All Categories**  
-![Get All](screenshot/get_all.jpeg)
-
-**Update Category**  
-![Update Category](screenshot/update_category.jpeg)
-
-**Delete Category**  
-![Delete Category](screenshot/delete_category.jpeg)
-
-### FAQ Management
-**Create FAQ with Translations**  
-![Create FAQ](screenshot/create_faq.jpeg)
-
-**Get FAQ (Customer Grouped View)**  
-![Get FAQ](screenshot/get_faq.jpeg)
-
-**Update FAQ Translation**  
-![Update Translation](screenshot/update_faq_translation.jpeg)
-
-**Update FAQ Visibility**  
-![Update Visibility](screenshot/update_vis.jpeg)
-
-**Delete FAQ**  
-![Delete FAQ](screenshot/delete_faq.jpeg)

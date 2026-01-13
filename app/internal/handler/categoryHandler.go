@@ -21,77 +21,71 @@ func (ch *CategoryHandler) Create(c *gin.Context) {
 	var req dto.CategoryCreateRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	otherErr := ch.categoryService.CreateCategory(req.Name)
 	if otherErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": otherErr.Error()})
+		SendResponse(c, http.StatusBadRequest, otherErr.Error(), nil)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "Category created successfully"})
 
+	SendResponse(c, http.StatusCreated, "Category created successfully", nil)
 }
 
 func (ch *CategoryHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No id found"})
+		SendResponse(c, http.StatusBadRequest, "No id found", nil)
 		return
 	}
+
 	newId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id number"})
+		SendResponse(c, http.StatusBadRequest, "Invalid id number", nil)
 		return
 	}
+
 	newErr := ch.categoryService.DeleteCategoryById(uint(newId))
 	if newErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "operation faild"})
+		SendResponse(c, http.StatusBadRequest, "operation failed", nil)
 		return
-
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "category deleted successfully"})
+	SendResponse(c, http.StatusOK, "category deleted successfully", nil)
 }
 
 func (ch *CategoryHandler) GetAll(c *gin.Context) {
 	categories, err := ch.categoryService.GetAllCategories()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"categories": categories})
-
+	SendResponse(c, http.StatusOK, "Categories fetched successfully", categories)
 }
 
 func (ch *CategoryHandler) Update(c *gin.Context) {
 	newcategoryId := c.Param("id")
 	Id, err := strconv.ParseInt(newcategoryId, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Id"})
+		SendResponse(c, http.StatusBadRequest, "Invalid Id", nil)
 		return
-
 	}
 
 	var req dto.CategoryUpdateRequest
 	newErr := c.ShouldBindJSON(&req)
 	if newErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": newErr.Error()})
+		SendResponse(c, http.StatusBadRequest, newErr.Error(), nil)
 		return
-
 	}
 
 	theardErr := ch.categoryService.UpdateCategory(uint(Id), req.Name)
 	if theardErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": theardErr.Error()})
+		SendResponse(c, http.StatusBadRequest, theardErr.Error(), nil)
 		return
-
 	}
 
-	c.JSON(http.StatusAccepted, gin.H{"message": "Category updated successfully"})
-
+	SendResponse(c, http.StatusAccepted, "Category updated successfully", nil)
 }

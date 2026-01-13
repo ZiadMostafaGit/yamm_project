@@ -45,9 +45,9 @@ func (a *authService) generateJWT(user *models.User) (string, error) {
 }
 
 type AuthService interface {
-	Register(user *models.User, storeName string) error
+	Register(user *models.User, storeName string) (string, error)
 	LogIn(email string, password string) (*string, error)
-	RegisterAdmin(user *models.User, storeName string) error
+	RegisterAdmin(user *models.User) (string, error)
 }
 
 type authService struct {
@@ -64,74 +64,82 @@ func NewAuthService(userRepo repository.UserRepository, storeRepo repository.Sto
 	}
 }
 
-func (a authService) Register(user *models.User, storeName string) error {
-
+func (a *authService) Register(user *models.User, storeName string) (string, error) {
 	_, err := a.userRepo.GetByEmail(user.Email)
 	if err == nil {
-		return errors.New("user already registerd")
-	} else {
+		return "", errors.New("user already registered")
+	}
+	if user.Role != "customer" && user.Role != "merchant" && user.Role != "admin" {
+		return "", errors.New("invalid role")
+	}
+	hashedPassword, newErr := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if newErr != nil {
+		return "", newErr
+	}
+	user.Password = string(hashedPassword)
 
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-		if err != nil {
+	transactionErr := a.db.Transaction(func(tx *gorm.DB) error {
+
+		if err := tx.Create(user).Error; err != nil {
 			return err
 		}
-		user.Password = string(hashedPassword)
 
-		return a.db.Transaction(
+		if user.Role == "merchant" {
+			store := &models.Store{
+				UserID: user.ID,
+				Name:   storeName,
+			}
+			if err := tx.Create(store).Error; err != nil {
+				return err
+			}
+			user.Store = store
+		}
 
-			func(tx *gorm.DB) error {
+		return nil
+	})
 
-				if user.Role != "customer" && user.Role != "merchant" && user.Role != "admin" {
-					return errors.New("invalid role")
-
-				}
-				err := tx.Create(user).Error
-				if err != nil {
-					return err
-				}
-
-				if user.Role == "merchant" {
-					store := &models.Store{
-						UserID: user.ID,
-						Name:   storeName,
-					}
-					err := tx.Create(store).Error
-					if err != nil {
-						return err
-					}
-				}
-
-				return nil
-			})
+	if transactionErr != nil {
+		return "", transactionErr
 	}
 
+	token, tokenErr := a.generateJWT(user)
+	if tokenErr != nil {
+		return "", tokenErr
+	}
+
+	return token, nil
 }
-
-func (a authService) RegisterAdmin(user *models.User, storeName string) error {
-
+func (a *authService) RegisterAdmin(user *models.User) (string, error) {
 	_, err := a.userRepo.GetByEmail(user.Email)
 	if err == nil {
-		return errors.New("user already registerd")
-	} else {
+		return "", errors.New("user already registered")
+	}
 
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, newErr := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if newErr != nil {
+		return "", newErr
+	}
+	user.Password = string(hashedPassword)
+	user.Role = "admin"
+
+	otherErr := a.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Create(user).Error
 		if err != nil {
 			return err
 		}
-		user.Password = string(hashedPassword)
+		return nil
+	})
 
-		return a.db.Transaction(
-
-			func(tx *gorm.DB) error {
-
-				err := tx.Create(user).Error
-				if err != nil {
-					return err
-				}
-				return nil
-			})
+	if otherErr != nil {
+		return "", otherErr
 	}
 
+	token, tokenErr := a.generateJWT(user)
+	if tokenErr != nil {
+		return "", tokenErr
+	}
+
+	return token, nil
 }
 
 func (a authService) LogIn(email, password string) (*string, error) {

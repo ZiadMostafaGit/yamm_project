@@ -58,23 +58,23 @@ func main() {
 
 		category := api.Group("/category")
 		{
-			category.POST("/Create", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Create)
-			category.PATCH("/Update/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Update)
-			category.DELETE("/Delete/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Delete)
-			category.GET("/GetAll", handler.AuthMiddleware(), handler.RoleMiddleware("customer", "merchant", "admin"), categoryHandler.GetAll)
+			category.POST("/create", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Create)
+			category.PATCH("/update/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Update)
+			category.DELETE("/delete/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), categoryHandler.Delete)
+			category.GET("/get_all", handler.AuthMiddleware(), handler.RoleMiddleware("customer", "merchant", "admin"), categoryHandler.GetAll)
 		}
 
 		faq := api.Group("/faq")
 		{
-			faq.GET("/GetForCustomer", faqHandler.GetCustomerView)
+			faq.GET("/get_for_customer", faqHandler.GetCustomerView)
 
-			faq.POST("/Create", handler.AuthMiddleware(), handler.RoleMiddleware("admin", "merchant"), faqHandler.Create)
+			faq.POST("/create", handler.AuthMiddleware(), handler.RoleMiddleware("admin", "merchant"), faqHandler.Create)
 
-			faq.PUT("/UpdateTranslations/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin", "merchant"), faqHandler.UpdateTranslations)
+			faq.PUT("/update_translations/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin", "merchant"), faqHandler.UpdateTranslations)
 
-			faq.DELETE("/Delete/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin", "merchant"), faqHandler.Delete)
+			faq.DELETE("/delete/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin", "merchant"), faqHandler.Delete)
 
-			faq.PATCH("/UpdateVisibility/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), faqHandler.UpdateVisibility)
+			faq.PATCH("/update_visibility/:id", handler.AuthMiddleware(), handler.RoleMiddleware("admin"), faqHandler.UpdateVisibility)
 		}
 	}
 
