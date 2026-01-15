@@ -61,6 +61,26 @@ Auth JWT and Bcrypt
 Migrations Goose
 Config Dotenv for database URL and JWT secret
 
+
+
+
+## Custom Postgres Configration
+
+Shared_buffers: made this var to 2GB so the postgres cache more data 
+
+Work_mem : set it to 64MB so the sorting and joins operation become much faster Note: this size is ber connection if 100 opend this is 6.4 gb mem 
+
+Checkpoint_completion_target: this is how fast the db write to disk make it 0.9
+
+Wal_buffers: set it to 16MB
+
+Synchronous_commit : set it to off
+
+Increase the Max_connection to 200
+
+
+
+
 ## How to run the project
 1 Set the env file with DATABASE_URL and JWT_SECRET
 2 Run migrations using goose up

@@ -97,15 +97,35 @@ func (s *faqService) CreateFAQ(req *dto.CreateFAQRequest, userRole string, userS
 
 	}
 
-	_, err2 := s.categoryRepo.GetById(req.CategoryID)
-	if err2 != nil {
-		return nil, errors.New("category not found")
-	}
+	errChan := make(chan error, 2)
 
-	if req.StoreID != nil {
-		_, err := s.storeRepo.GetByUserid(*req.StoreID)
-		if err != nil {
-			return nil, errors.New("store not found")
+	go func() {
+
+		_, err2 := s.categoryRepo.GetById(req.CategoryID)
+
+		if err2 != nil {
+			errChan <- err2
+		} else {
+			errChan <- nil
+		}
+	}()
+
+	go func() {
+		if req.StoreID != nil {
+			_, err := s.storeRepo.GetByUserid(*req.StoreID)
+			if err != nil {
+				errChan <- err
+			}
+		} else {
+			errChan <- nil
+		}
+
+	}()
+
+	for i := 0; i < 2; i++ {
+		checkError := <-errChan
+		if checkError != nil {
+			return nil, checkError
 		}
 	}
 

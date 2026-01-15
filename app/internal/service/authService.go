@@ -65,17 +65,37 @@ func NewAuthService(userRepo repository.UserRepository, storeRepo repository.Sto
 }
 
 func (a *authService) Register(user *models.User, storeName string) (string, error) {
-	_, err := a.userRepo.GetByEmail(user.Email)
-	if err == nil {
-		return "", errors.New("user already registered")
+
+	errChan := make(chan error, 2)
+
+	var hashedPassword []byte
+	var newErr error
+	go func() {
+
+		_, err := a.userRepo.GetByEmail(user.Email)
+		if err == nil {
+			errChan <- err
+		}
+		if user.Role != "customer" && user.Role != "merchant" && user.Role != "admin" {
+			errChan <- errors.New("invalid role")
+		}
+	}()
+
+	go func() {
+
+		hashedPassword, newErr = bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if newErr != nil {
+			errChan <- newErr
+		}
+	}()
+
+	for i := 0; i < 2; i++ {
+		theErr := <-errChan
+		if theErr != nil {
+			return "", theErr
+		}
 	}
-	if user.Role != "customer" && user.Role != "merchant" && user.Role != "admin" {
-		return "", errors.New("invalid role")
-	}
-	hashedPassword, newErr := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if newErr != nil {
-		return "", newErr
-	}
+
 	user.Password = string(hashedPassword)
 
 	transactionErr := a.db.Transaction(func(tx *gorm.DB) error {
@@ -110,14 +130,32 @@ func (a *authService) Register(user *models.User, storeName string) (string, err
 	return token, nil
 }
 func (a *authService) RegisterAdmin(user *models.User) (string, error) {
-	_, err := a.userRepo.GetByEmail(user.Email)
-	if err == nil {
-		return "", errors.New("user already registered")
-	}
 
-	hashedPassword, newErr := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if newErr != nil {
-		return "", newErr
+	errChan := make(chan error, 2)
+	var hashedPassword []byte
+	var newErr error
+
+	go func() {
+
+		_, err := a.userRepo.GetByEmail(user.Email)
+		if err == nil {
+			errChan <- errors.New("user already registered")
+		}
+	}()
+
+	go func() {
+
+		hashedPassword, newErr = bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if newErr != nil {
+			errChan <- newErr
+		}
+	}()
+
+	for i := 0; i < 2; i++ {
+		theErr := <-errChan
+		if theErr != nil {
+			return "", theErr
+		}
 	}
 	user.Password = string(hashedPassword)
 	user.Role = "admin"
